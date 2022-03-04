@@ -1,0 +1,38 @@
+participant Browser as B
+participant goonbus.ru as WS
+participant check.ddos_guard.net as DG
+
+B->WS:1. User: GET /
+WS-->B:403: index.html with js
+Note left of WS: set-cookie:__ddgid 1y, __ddgmark 1d, __ddg5 3h
+
+B->DG:2.1. BootstrapJs: GET /check.js
+DG-->B:200: check.js
+Note left of DG: set-cookie: __ddg2 1y, etag: {__ddg2}
+
+B->WS:2.2. BootstrapJs: GET /.well-known/ddos-guard/check?context=free_splash
+Note right of B: cookie: __ddgid, __ddgmark, __ddg5
+WS-->B: 200: fingerPrinting.js 93kb
+
+B-WS:3. GET /favicon.ico
+Note right of B: cookie: __ddgid, __ddgmark, __ddg5
+WS-->B: 200: image/vnd.microsoft.icon, 9662 bytes
+Note left of WS: set-cookie: __ddg1 1y
+
+B->WS:4.1. check.js: GET /.well-known/ddos-guard/id/{__ddg2}
+Note right of B: cookie: __ddgid, __ddgmark, __ddg5, __ddg1
+WS-->B: 200: clear.png 1px
+Note left of WS: set-cookie: __ddg2 1y (shift 4s)
+
+B->DG:4.2. check.js: GET /set/id/{__ddg2}, cookie: __ddg2
+DG-->B: 200: clear.png 1px
+Note left of DG: set-cookie: __ddg2 1y (shift 4s)
+
+B->WS:5. BootstrapJS, redirect after 3s: GET /
+Note right of B: cookie: __ddgid, __ddgmark, __ddg5, __ddg1, __ddg2
+WS-->B: 200: main.html
+
+B->WS:6. fingerPrinting.js: POST /.well-known/ddos-guard/mark/
+Note right of B: cookie: __ddgid, __ddgmark, __ddg5, __ddg1, __ddg2
+Note right of B: POST contains browser fingerprint data in JSON
+WS-->B: 200
