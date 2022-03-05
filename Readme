@@ -1,3 +1,14 @@
 VS Code plugins
     https://marketplace.visualstudio.com/items?itemName=humao.rest-client - Readme.http
     https://marketplace.visualstudio.com/items?itemName=AleksandarDev.vscode-sequence-diagrams - Readme.seqdiag
+
+For next URL: /.well-known/ddos-guard/check?context={context}
+Possible values so far are:
+ - normal - saw it in free_splash.js script
+ - free_splash - timeout 5s (3000ms in reality)
+ - captcha - initializes hcaptcha
+
+Seems like context value generated on the backend using collected statistics.
+Seems like those are equal:
+    https://.../.well-known/ddos-guard/check?context=captcha
+    https://.../.well-known/ddos-guard/check?context=free_splash
